@@ -11,8 +11,7 @@ namespace Grades
     {
         static void Main(string[] args)
         {
-
-            GradeBook book = new GradeBook();
+            IGradeTracker book = CreateGradeBook();
 
             //+= a delegate is multicasting it, so it can hit all methods that reference a name change
             //we also don't have to type out new NameChangedDelegate(OnNameChanged)
@@ -23,7 +22,7 @@ namespace Grades
             //book.Name = "Danzig's Gradebook";
             //book.Name = "Guts' Gradebook";
 
-            GetBookName(book);
+            //GetBookName(book);
             AddGrades(book);
             SaveGrades(book);
             WriteResults(book);
@@ -32,9 +31,20 @@ namespace Grades
 
         }
 
-        private static void WriteResults(GradeBook book)
+        private static GradeTracker CreateGradeBook()
+        {
+            return new ThrowAwayGradebook();
+        }
+
+        private static void WriteResults(IGradeTracker book)
         {
             GradeStatistics stats = book.ComputeStatistics();
+
+            foreach (float grade in book)
+            {
+                Console.WriteLine(grade);
+            }
+
             Console.WriteLine(book.Name);
             WriteResult("Average", stats.AverageGrade);
             WriteResult("Highest", (int)stats.HighestGrade);//casting to int
@@ -42,7 +52,7 @@ namespace Grades
             WriteResult(stats.Description, stats.LetterGrade);
         }
 
-        private static void SaveGrades(GradeBook book)
+        private static void SaveGrades(IGradeTracker book)
         {
             using (StreamWriter outputFile = File.CreateText("grades.txt"))
             {
@@ -50,14 +60,14 @@ namespace Grades
             }
         }
 
-        private static void AddGrades(GradeBook book)
+        private static void AddGrades(IGradeTracker book)
         {
             book.AddGrade(91);
             book.AddGrade(89.5f);
             book.AddGrade(75);
         }
 
-        private static void GetBookName(GradeBook book)
+        private static void GetBookName(IGradeTracker book)
         {
             try
             {
